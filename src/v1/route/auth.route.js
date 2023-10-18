@@ -6,6 +6,7 @@ const {
   loginUser,
   extendTokenValidity,
   deleteToken,
+  deleteMultipleTokens
 } = require("./../controller/auth.controller");
 
 router
@@ -27,7 +28,7 @@ router
   /**
    * Extend the duration of the token
    */
-  .post(extendTokenValidity);
+  .put(extendTokenValidity);
 
 router
   .route("/token")
@@ -35,5 +36,12 @@ router
    * Delete the token
    */
   .delete(deleteToken);
+
+router
+  .route("/token/all")
+  /**
+   * Delete the token
+   */
+  .delete(deleteMultipleTokens);
 
 module.exports = router;

@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
 
-const { findExistingUser, createNewUser, findAndUpdateToken, createToken, deleteToken } = require("./../model/auth.model");
+const { findExistingUser, createNewUser, findAndUpdateToken, createToken, deleteToken, deleteMultipleTokens } = require("./../model/auth.model");
 
 const helpers = require("../util/helper.util");
+const { createRandomString } = require("../../../tests/util/helper.util");
 
 const controller = {};
 
@@ -19,12 +20,17 @@ controller.registerUser = async (req, res, _) => {
     const user = await createNewUser(email, encryptedPassword, "client");
     console.log("🚀 ~ file: auth.controller.js:20 ~ controller.registerUser= ~ user:", user)
 
+    const tokenId = createRandomString(20);
     const token = jwt.sign(
-      { user_id: user._id, email },
+      { id: tokenId, user_id: user._id, email },
       process.env.TOKEN_KEY,
       { expiresIn: helpers.generateTokenExpiration() }
     );
     user.token = token;
+
+    const ONE_HR = 60 * 60 * 1000 // minutes, seconds, milliseconds
+
+    await createToken(tokenId, token, ONE_HR, user._id);
     console.log("🚀 ~ file: auth.controller.js:28 ~ controller.registerUser= ~ user.token:", user.token)
     return res.status(201).json(user);
   } catch (err) {
@@ -59,10 +65,11 @@ controller.loginUser = async (req, res, _) => {
       });
     }
 
-    const token = helpers.generateToken(user);
+    const tokenId = createRandomString(16);
+    const token = helpers.generateToken(tokenId, user);
+    const newToken = await createToken(tokenId, token, helpers.generateTokenExpiration(), user._id)
 
-    const newToken = await createToken(token, helpers.generateTokenExpiration(), user._id)
-
+    console.log("🚀 ~ file: auth.controller.js:76 ~ returnres.status ~ newToken:", newToken)
     return res.status(200).json({
       email: user.email,
       role: user.role,
@@ -81,13 +88,21 @@ controller.loginUser = async (req, res, _) => {
 
 controller.extendTokenValidity = async (req, res, _) => {
   try {
-    const { id, extend } = req.body;
-    const token = typeof id == "Number" ? id : false;
-    if (!(token && extend))
-      res.status(400).json({ message: "Invalid input", status: 400 });
+    let { id, extend } = req.body;
+    extend = typeof extend == 'boolean' ? extend : false;
+    id = typeof id == "string" && id.trim().length > 0 ? id : false;
+    if (!(id && extend))
+      return res.status(400).json({ message: "Invalid input", status: 400 });
 
+    console.log("🚀 ~ file: auth.controller.js:97 ~ controller.extendTokenValidity= ~ id:", id)
     const ONE_HR_EXTENSION = 60 * 60 * 1000 // minutes, seconds, milliseconds
     const extendedToken = await findAndUpdateToken(id, ONE_HR_EXTENSION);
+    console.log("🚀 ~ file: auth.controller.js:97 ~ controller.extendTokenValidity= ~ extendedToken:", extendedToken)
+    if (!extendedToken) return res.status(404).json({
+      message: "Access token not found",
+      status: 404
+    });
+
     return res.status(200).json({
       message: "Session extended successfully.",
       status: 200,
@@ -121,6 +136,36 @@ controller.deleteToken = async (req, res, _) => {
       status: 500,
     });
   }
+};
+
+controller.deleteMultipleTokens = async (req, res, _) => {
+  try {
+    let { userIds } = req.body;
+    if (!(userIds?.length > 0)) return res.status(400).json({
+        message: "Invalid ids",
+        status: 400
+    });
+    userIds.forEach((id, index) => {
+        if (typeof id != 'string' || id.trim().length == 0)  return res.status(400).json({
+            message: "Invalid id format",
+            status: 400
+        });
+        userIds[index] = id.trim();
+    });
+
+    const deleted = await deleteMultipleTokens(userIds);
+    return res.status(200).json({
+        message: "Resources deleted successfully",
+        deleted: deleted?.deletedCount,
+        status: 500
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Something went wrong.",
+      status: 500,
+    });
+  } 
 };
 
 module.exports = controller;

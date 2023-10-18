@@ -1,3 +1,5 @@
+const mongoose = require("mongoose")
+
 const User = require("../../../mongo/models/users");
 const Token = require("../../../mongo/models/tokens");
 
@@ -14,15 +16,17 @@ model.createNewUser = async (email, encryptedPassword, role) => {
 };
 
 model.findAndUpdateToken = async (id, milliseconds) => {
-  return await Token.findOneAndUpdate(
-    { _id: id },
+  console.log("🚀 ~ file: auth.model.js:19 ~ model.findAndUpdateToken= ~ id:", id)
+  return await Token.findByIdAndUpdate(
+    id,
     { expires: Date.now() + milliseconds },
     { new: true }
   );
 };
 
-model.createToken = async (token, expiresAt, userId) => {
+model.createToken = async (id, token, expiresAt, userId) => {
   return await Token.create({
+    _id: id,
     accessToken: token,
     expires: expiresAt,
     userId: userId,
@@ -30,7 +34,12 @@ model.createToken = async (token, expiresAt, userId) => {
 };
 
 model.deleteToken = async (id) => {
-  await Token.deleteOne({ id: id });
+  await Token.deleteOne({ _id: id });
+};
+
+model.deleteMultipleTokens = async (arrayOfUserIds) => {
+  console.log("🚀 ~ file: auth.model.js:41 ~ model.deleteMultipleTokens ~ arrayOfIds:", arrayOfUserIds)
+  await Token.deleteMany({ userId: { $in: arrayOfUserIds }});
 };
 
 module.exports = model;

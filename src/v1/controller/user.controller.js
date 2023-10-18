@@ -4,7 +4,12 @@ const controller = {};
 
 controller.deleteMultipleUsers = async (req, res, _) => {
     try {
-        const { ids } = req.query;
+        let { ids } = req.query;
+        console.log("🚀 ~ file: user.controller.js:8 ~ controller.deleteMultipleUsers ~ ids:", ids)
+        if (!(ids?.length > 0)) return res.status(400).json({
+            message: "Invalid ids",
+            status: 400
+        })
         ids.forEach((id, index) => {
             if (typeof id != 'string' || id.trim().length == 0)  return res.status(400).json({
                 message: "Invalid id format",

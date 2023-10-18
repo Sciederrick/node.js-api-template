@@ -17,6 +17,7 @@ controller.registerUser = async (req, res, _) => {
 
     const encryptedPassword = helpers.hash(password);
     const user = await createNewUser(email, encryptedPassword, "client");
+    console.log("🚀 ~ file: auth.controller.js:20 ~ controller.registerUser= ~ user:", user)
 
     const token = jwt.sign(
       { user_id: user._id, email },
@@ -24,6 +25,7 @@ controller.registerUser = async (req, res, _) => {
       { expiresIn: helpers.generateTokenExpiration() }
     );
     user.token = token;
+    console.log("🚀 ~ file: auth.controller.js:28 ~ controller.registerUser= ~ user.token:", user.token)
     return res.status(201).json(user);
   } catch (err) {
     console.error(err);

@@ -6,7 +6,10 @@ const {
   loginUser,
   extendTokenValidity,
   deleteToken,
-  deleteMultipleTokens
+  deleteMultipleTokens,
+  createPasswordResetLink,
+  createPasswordResetForm,
+  resetPassword
 } = require("./../controller/auth.controller");
 
 router
@@ -43,5 +46,26 @@ router
    * Delete the token
    */
   .delete(deleteMultipleTokens);
+
+router
+  .route("/passwordreset/link")
+  /**
+   * Forgot password
+   */
+  .post(createPasswordResetLink);
+
+router
+  .route("/passwordreset/:id/:token")
+  /**
+   * 
+   */
+  .post(createPasswordResetForm);
+
+router
+  .route("/passwordreset")
+  /**
+   * Reset password
+   */
+  .post(resetPassword);
 
 module.exports = router;

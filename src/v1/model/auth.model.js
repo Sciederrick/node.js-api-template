@@ -5,7 +5,15 @@ const Token = require("../../../mongo/models/tokens");
 
 const model = {};
 
-model.findExistingUser = async (email) => await User.findOne({ email });
+model.findExistingUser = async (emailOrId) => {
+  const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  const isEmail = emailPattern.test(emailOrId);
+  if (isEmail) {
+    await User.findOne({ email });
+  } else {
+    await User.findOne({ _id: emailOrId });
+  }
+}
 
 model.createNewUser = async (email, encryptedPassword, role) => {
   return await User.create({
@@ -38,8 +46,11 @@ model.deleteToken = async (id) => {
 };
 
 model.deleteMultipleTokens = async (arrayOfUserIds) => {
-  console.log("🚀 ~ file: auth.model.js:41 ~ model.deleteMultipleTokens ~ arrayOfIds:", arrayOfUserIds)
   await Token.deleteMany({ userId: { $in: arrayOfUserIds }});
 };
+
+model.updatePassword = async (id, newPassword) => {
+  await User.updateOne({ _id: id }, { password: newPassword }, { new: true });
+}
 
 module.exports = model;

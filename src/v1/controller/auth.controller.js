@@ -7,11 +7,11 @@ const {
   createToken,
   deleteToken,
   deleteMultipleTokens,
-  updatePassword
+  updatePassword,
 } = require("./../model/auth.model");
 
 const helpers = require("../util/helper.util");
-const mailgun = require("./../util/mailgun.util");
+const sendPasswordResetEmail = require("./../util/mailgun.util");
 const { createRandomString } = require("../../../tests/util/helper.util");
 
 const controller = {};
@@ -221,24 +221,12 @@ controller.createPasswordResetLink = async (req, res, _) => {
       });
 
     const secret = foundUser.password + "-" + foundUser.createdAt.getTime();
-    const token = jwt.encode({ id: foundUser._id, email }, secret);
-    const resetLink = `${process.env.BASE_URL}/v1/api/auth/resetpassword/${foundUser._id}/${token}`;
-    mailgun.send(
-      "passwordReset",
-      "devacc454@gmail.com",
-      resetLink,
-      (err, data) => {
-        if (!err && data) {
-          return res.sendStatus(200);
-        } else {
-          return res
-            .status(408)
-            .json({
-              Error: `Email forwarding failed with ${err}, contact admin for support.`,
-            });
-        }
-      }
-    );
+    const token = jwt.sign({ id: foundUser._id, email }, secret);
+    const resetLink = `${process.env.BASE_URL}/api/v1/auth/passwordreset/${foundUser._id}/${token}`;
+
+    return (await sendPasswordResetEmail("", resetLink))
+      ? res.sendStatus(200)
+      : res.status(408).json({ Error: `Email forwarding failed` });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
@@ -248,10 +236,16 @@ controller.createPasswordResetLink = async (req, res, _) => {
   }
 };
 
-controller.createPasswordResetForm = async (req, res, _) => {
+controller.getPasswordResetForm = async (req, res, _) => {
   try {
     const { id, token } = req.params;
     const foundUser = await findExistingUser(id);
+    console.log(
+      "🚀 ~ file: auth.controller.js:243 ~ controller.getPasswordResetForm= ~ foundUser:",
+      foundUser
+    );
+    if (!foundUser)
+      return res.status(404).json({ message: "User not found", status: 404 });
     const secret = foundUser.password + "-" + foundUser.createdAt.getTime();
     const payload = jwt.verify(token, secret);
 
@@ -353,10 +347,10 @@ controller.createPasswordResetForm = async (req, res, _) => {
         </div>
         <div class="container bg-white shadow-md">
           <h1>Password Reset</h1>
-          <form>
-            <input type="password" placeholder="New Password" required>
-            <input type="hidden" name="id" value="${payload.id}" />
-            <input type="hidden" name="token" value="${token}" />
+          <form action="/api/v1/auth/passwordreset" method="POST">
+          <input type="hidden" name="id" value="${payload.id}" />
+          <input type="hidden" name="token" value="${token}" />
+          <input type="password" name="password" placeholder="New Password" required>
             <input type="submit" value="Reset Password">
           </form>
         <div>
@@ -376,11 +370,24 @@ controller.createPasswordResetForm = async (req, res, _) => {
 controller.resetPassword = async (req, res, _) => {
   try {
     let { id, token, password } = req.body;
-    id = typeof id == 'string' && id.trim().length > 0 ? id.trim() : false;
-    token = typeof token == 'string' && token.trim().length > 0 ? token.trim() : false;
-    password = typeof password == 'string' && password.trim().length > 0 ? password.trim() : false;
+    console.log(
+      "🚀 ~ file: auth.controller.js:369 ~ controller.resetPassword= ~ id, token, password:",
+      id,
+      token,
+      password
+    );
+    id = typeof id == "string" && id.trim().length > 0 ? id.trim() : false;
+    token =
+      typeof token == "string" && token.trim().length > 0
+        ? token.trim()
+        : false;
+    password =
+      typeof password == "string" && password.trim().length > 0
+        ? password.trim()
+        : false;
 
-    if (!(id && token && password)) return res.status(400).json({ message: "Invalid form", status: 400 });
+    if (!(id && token && password))
+      return res.status(400).json({ message: "Invalid form", status: 400 });
 
     const foundUser = await findExistingUser(id);
     const secret = foundUser.password + "-" + foundUser.createdAt.getTime();
@@ -388,13 +395,15 @@ controller.resetPassword = async (req, res, _) => {
 
     await updatePassword(payload.id, password);
 
-    return res.status(200).json({ message: "Password reset successfully", status: 200 });
+    return res
+      .status(200)
+      .json({ message: "Password reset successfully", status: 200 });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
       message: "Something went wrong.",
       status: 500,
-    });  
+    });
   }
 };
 

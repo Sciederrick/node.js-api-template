@@ -8,7 +8,7 @@ const {
   deleteToken,
   deleteMultipleTokens,
   createPasswordResetLink,
-  createPasswordResetForm,
+  getPasswordResetForm,
   resetPassword
 } = require("./../controller/auth.controller");
 
@@ -59,7 +59,7 @@ router
   /**
    * 
    */
-  .post(createPasswordResetForm);
+  .get(getPasswordResetForm);
 
 router
   .route("/passwordreset")

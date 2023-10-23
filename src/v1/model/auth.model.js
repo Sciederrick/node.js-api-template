@@ -8,11 +8,7 @@ const model = {};
 model.findExistingUser = async (emailOrId) => {
   const emailPattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   const isEmail = emailPattern.test(emailOrId);
-  if (isEmail) {
-    await User.findOne({ email });
-  } else {
-    await User.findOne({ _id: emailOrId });
-  }
+  return await (isEmail ? User.findOne({ email: emailOrId }) : User.findOne({ _id: emailOrId }));
 }
 
 model.createNewUser = async (email, encryptedPassword, role) => {

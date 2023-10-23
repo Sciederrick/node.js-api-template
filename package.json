@@ -18,8 +18,8 @@
     "dotenv": "^16.3.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^9.0.0",
-    "mailgun-js": "^0.22.0",
-    "mongoose": "^5.7.1"
+    "mongoose": "^5.7.1",
+    "nodemailer": "^6.9.7"
   },
   "devDependencies": {
     "apidoc": "^0.54.0",

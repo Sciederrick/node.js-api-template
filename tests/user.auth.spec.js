@@ -14,29 +14,29 @@ describe("User auth endpoint", () => {
   let userIds = new Set();
   let accessToken;
 
-  afterAll(async () => {
-    userIds = [...userIds];
+  // afterAll(async () => {
+  //   userIds = [...userIds];
 
-    if (userIds.length > 0) {
-      await request(baseUrl)
-        .delete("/api/v1/user/")
-        .query({
-          ids: userIds,
-        })
-        .set("Accept", "application/json")
-        .set("Content-Type", "application/json");
+  //   if (userIds.length > 0) {
+  //     await request(baseUrl)
+  //       .delete("/api/v1/user/")
+  //       .query({
+  //         ids: userIds,
+  //       })
+  //       .set("Accept", "application/json")
+  //       .set("Content-Type", "application/json");
 
-      await request(baseUrl)
-        .delete("/api/v1/auth/token/all")
-        .send({
-          userIds: userIds,
-        })
-        .set("Accept", "application/json")
-        .set("Content-Type", "application/json");
-    }
+  //     await request(baseUrl)
+  //       .delete("/api/v1/auth/token/all")
+  //       .send({
+  //         userIds: userIds,
+  //       })
+  //       .set("Accept", "application/json")
+  //       .set("Content-Type", "application/json");
+  //   }
 
-    jest.resetModules();
-  });
+  //   jest.resetModules();
+  // });
 
   it(
     "should return a 201 status code on new user registration",
@@ -122,4 +122,24 @@ describe("User auth endpoint", () => {
 
     expect(response.statusCode).toBe(200);
   });
+
+  it("password reset link should return a 200 status code", async () => {
+    const response = await request(baseUrl)
+      .post("/api/v1/auth/passwordreset/link")
+      .set("Content-Type", "application/json")
+      .set("Accept", "application/json")
+      .send({ email: fakeEmail });
+
+    expect(response.statusCode).toBe(200);
+  }, 20_000);
+
+  // it("password reset form should return a 200 status code", async () => {
+  //   const response = await request(baseUrl)
+  //     .post("/api/v1/auth/passwordreset/link")
+  //     .set("Content-Type", "application/json")
+  //     .set("Accept", "application/json")
+  //     .send({ email: fakeEmail });
+
+  //   expect(response.statusCode).toBe(200);
+  // }, 20_000);
 });

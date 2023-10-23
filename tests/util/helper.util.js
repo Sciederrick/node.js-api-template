@@ -19,7 +19,6 @@ helpers.createRandomString = (strLength)=>{
         }
 
         //  Return the final string
-        console.log("🚀 ~ file: helper.util.js:23 ~ str:", str)
         return str
     }else{
         return false
@@ -30,9 +29,7 @@ helpers.createRandomString = (strLength)=>{
 helpers.decodeJsonWebToken = (token) => {
     if (typeof token != 'string' || token.trim().length == 0) return false;
     try {
-        const decoded = jwt.verify(token, process.env.TOKEN_KEY??"12345678");
-        console.log("🚀 ~ file: helper.util.js:33 ~ decoded:", decoded)
-        return decoded;
+        return jwt.verify(token, process.env.TOKEN_KEY??"12345678");
     } catch(err) {
         console.error(err);
         return false;

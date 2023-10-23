@@ -16,10 +16,7 @@ describe("User auth endpoint", () => {
 
   afterAll(async () => {
     userIds = [...userIds];
-    console.log(
-      "🚀 ~ file: user.auth.spec.js:19 ~ afterAll ~ recordIds:",
-      userIds
-    );
+
     if (userIds.length > 0) {
       await request(baseUrl)
         .delete("/api/v1/user/")

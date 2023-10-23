@@ -17,7 +17,10 @@ A starter backend best practices infused Node.js API template for perfect start 
 * Mailgun account for password reset emails
 * Mongodb database
 
-Then:
+**Pending** 
+* Authorization
+
+Then on the project folder do:
 ```shell
 yarn install
 ```

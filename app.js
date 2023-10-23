@@ -4,7 +4,7 @@ const app = express();
 const cors = require('cors');
 
 
-const v1Routes = require('./src/v1/routes');
+const v1Routes = require('./src/v1/route');
 
 app.use(express.static('public'))
 app.use("/docs", express.static('doc'))
@@ -12,7 +12,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
-    extended: true,
+    extended: false,
   })
 );
 

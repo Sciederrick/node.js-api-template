@@ -1,8 +1,14 @@
 # 1. Generate Api key for authenticated user (Example request with requests.rest Vscode extension)
-GET http://localhost:3005/api/v1/key
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiam9obmRvZUBleGFtcGxlLmNvbSIsImlkIjoiNjNlYTM4N2IyN2NhMDU0ZjhjMmViNmI2Iiwicm9sZSI6ImNsaWVudCIsImlhdCI6MTY3OTMyMTYzM30.O-hYhq3tCXNUP79bJ43uHqXhozCtlsePu55zkfb1SUs
+# GET http://localhost:3005/api/v1/key
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiam9obmRvZUBleGFtcGxlLmNvbSIsImlkIjoiNjNlYTM4N2IyN2NhMDU0ZjhjMmViNmI2Iiwicm9sZSI6ImNsaWVudCIsImlhdCI6MTY3OTMyMTYzM30.O-hYhq3tCXNUP79bJ43uHqXhozCtlsePu55zkfb1SUs
 
+PUT http://localhost:3005/api/v1/auth/token
+Content-Type: application/json
 
+{
+  "id": "653008ec176ff74d18940058",
+  "extend": true
+}
 
 
 

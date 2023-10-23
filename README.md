@@ -9,6 +9,7 @@ Contains:
 What you'll need to setup:
 * Mailgun account for password reset emails
 * Mongodb database
+
 Then:
 ```shell
 yarn install

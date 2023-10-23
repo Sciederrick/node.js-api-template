@@ -14,7 +14,7 @@ const passwordReset = async (toEmail, resetLink) => {
 
     let info = await transporter.sendMail({
       from: "nodejs-api-template@sandbox1ffc61987899402f982d71e63dd5b800.mailgun.org",
-      to: "devacc454@gmail.com", // toEmail,
+      to: toEmail, // toEmail,
       subject: "Password Reset",
       text: `Here is your password reset link: ${resetLink}`,
     });
